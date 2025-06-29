@@ -18,7 +18,8 @@ import {
   Sparkles,
   Loader2,
 } from "lucide-react";
-import Background from "@assets/home_bg.jpg";
+// Using the provided background image from public assets
+const Background = "/assets/home_bg.jpg";
 
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
