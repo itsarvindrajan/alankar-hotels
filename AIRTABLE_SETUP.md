@@ -1,142 +1,197 @@
-# Airtable Setup Guide for Dynamic Menu System
+# Airtable Setup for Alankar Hotels
 
-## Overview
-This guide will help you set up Airtable to manage your restaurant menu dynamically. The system will fetch menu data from your Airtable base and display it on your website.
+This document explains how to set up your Airtable base to work with the Alankar Hotels website. The website fetches dynamic content from Airtable for menu items, restaurant ambiance images, locations, testimonials, and contact information.
 
-## Prerequisites
-- An Airtable account (free tier is sufficient)
-- Basic understanding of Airtable bases and tables
+## Environment Variables
 
-## Step 1: Create Airtable Base
-1. Go to [Airtable](https://airtable.com) and create a new base
-2. Name it "Alankar Hotels Menu" or similar
-3. Note down your Base ID (found in the API documentation for your base)
+Add these to your `.env` file:
 
-## Step 2: Create Tables
-
-### Table 1: Menu_Categories
-Create a table with the following fields:
-
-| Field Name | Field Type | Description | Example Values |
-|------------|------------|-------------|----------------|
-| Name | Single line text | Category name | "Appetizers", "Main Courses" |
-| Description | Long text | Category description | "Delicious starters to begin your meal" |
-| Icon | Single select | Icon identifier | "Utensils", "Heart", "Sparkles", "Coffee", "ChefHat", "Soup" |
-| Display_Order | Number | Order of display | 1, 2, 3, 4 |
-| Is_Active | Checkbox | Whether category is active | ✓ (checked) |
-
-**Sample Records:**
-1. Name: "Appetizers", Icon: "Utensils", Display_Order: 1, Is_Active: ✓
-2. Name: "Main Courses", Icon: "Heart", Display_Order: 2, Is_Active: ✓
-3. Name: "Desserts", Icon: "Sparkles", Display_Order: 3, Is_Active: ✓
-4. Name: "Beverages", Icon: "Coffee", Display_Order: 4, Is_Active: ✓
-
-### Table 2: Menu_Items
-Create a table with the following fields:
-
-| Field Name | Field Type | Description | Example Values |
-|------------|------------|-------------|----------------|
-| Name | Single line text | Item name | "Paneer Tikka", "Dal Tadka" |
-| Description | Long text | Item description | "Marinated cottage cheese cubes grilled to perfection" |
-| Price | Number | Item price in rupees | 180, 220 |
-| Category | Link to another record | Link to Menu_Categories | Select from categories |
-| Is_Available | Checkbox | Whether item is available | ✓ (checked) |
-| Image | URL | Optional image URL | "https://example.com/image.jpg" |
-| Tags | Multiple select | Optional tags | "Spicy", "Popular", "Vegan" |
-| Created_At | Created time | Auto-generated | Auto |
-| Updated_At | Last modified time | Auto-generated | Auto |
-
-**Sample Records:**
-1. Name: "Paneer Tikka", Description: "Marinated cottage cheese cubes grilled to perfection with aromatic spices", Price: 180, Category: "Appetizers", Is_Available: ✓
-2. Name: "Paneer Butter Masala", Description: "Rich and creamy tomato-based curry with soft cottage cheese", Price: 220, Category: "Main Courses", Is_Available: ✓
-
-## Step 3: Get API Credentials
-1. Go to your Airtable account settings
-2. Generate a Personal Access Token with the following scopes:
-   - `data.records:read` for your base
-3. Copy your API key and Base ID
-
-## Step 4: Configure Environment Variables
-Create a `.env` file in your project root (or add to existing one):
-
-```env
-VITE_AIRTABLE_API_KEY=your_personal_access_token_here
-VITE_AIRTABLE_BASE_ID=your_base_id_here
+```
+VITE_AIRTABLE_API_KEY=your_airtable_api_key_here
+VITE_AIRTABLE_BASE_ID=your_airtable_base_id_here
 ```
 
-**Important:** Never commit your `.env` file to version control. Add it to `.gitignore`.
+## Airtable Tables Configuration
 
-## Step 5: Icon Options
-The system supports these icon identifiers for categories:
-- `Utensils` - General dining/cutlery icon
-- `Coffee` - Coffee cup icon
-- `Heart` - Heart icon (good for favorites/popular)
-- `Sparkles` - Sparkles icon (good for desserts/special items)
-- `ChefHat` - Chef hat icon
-- `Soup` - Bowl/soup icon
+### 1. MenuCategories Table
 
-## Step 6: Testing
-1. Add some sample data to both tables
-2. Make sure `Is_Active` is checked for categories
-3. Make sure `Is_Available` is checked for menu items
-4. Link menu items to their appropriate categories
-5. Start your development server and check if the menu loads
+**Fields:**
 
-## Step 7: Managing Your Menu
-### Adding New Items:
-1. Go to the Menu_Items table
-2. Add a new record with all required fields
-3. Make sure to link it to the correct category
-4. Check `Is_Available` to make it visible on the website
+- `name` (Single line text) - Category name (e.g., "Appetizers")
+- `description` (Long text) - Optional category description
+- `icon` (Single line text) - Icon name (e.g., "Utensils", "Coffee", "Heart")
+- `displayOrder` (Number) - Order for displaying categories
+- `isActive` (Checkbox) - Whether category is active
 
-### Adding New Categories:
-1. Go to the Menu_Categories table
-2. Add a new record with all required fields
-3. Choose an appropriate icon from the available options
-4. Set the display order (higher numbers appear later)
-5. Check `Is_Active` to make it visible
+### 2. MenuItems Table
 
-### Updating Prices:
-1. Simply edit the Price field in the Menu_Items table
-2. Changes will appear on the website within 5 minutes (due to caching)
+**Fields:**
 
-### Temporarily Hiding Items:
-1. Uncheck `Is_Available` for menu items you want to hide
-2. Uncheck `Is_Active` for entire categories you want to hide
+- `name` (Single line text) - Item name
+- `description` (Long text) - Item description
+- `price` (Number) - Price in rupees
+- `category` (Single line text) - Category name (must match MenuCategories.name)
+- `isAvailable` (Checkbox) - Whether item is available
+- `image` (Attachment) - Optional item image
+- `tags` (Single line text) - Comma-separated tags
+- `isSignature` (Checkbox) - Whether item is a signature dish
+- `isLatest` (Checkbox) - Whether item is new/latest
+- `createdAt` (Date) - Creation date
+- `updatedAt` (Date) - Last update date
 
-## Features
-- **Caching**: Menu data is cached for 5 minutes to improve performance
-- **Fallback**: If Airtable is unavailable, the system uses fallback static data
-- **Real-time Updates**: Changes in Airtable appear on the website within 5 minutes
-- **Error Handling**: Graceful fallback to static menu if API fails
+### 3. AmbianceImages Table
+
+**Fields:**
+
+- `title` (Single line text) - Image title
+- `description` (Long text) - Optional image description
+- `image` (Attachment) - The image file
+- `type` (Single select) - Image type (dining, exterior, kitchen, food, events)
+- `displayOrder` (Number) - Display order
+- `isActive` (Checkbox) - Whether image is active
+- `createdAt` (Date) - Creation date
+- `updatedAt` (Date) - Last update date
+
+### 4. Locations Table ⭐ NEW
+
+**Fields:**
+
+- `name` (Single line text) - Location name (e.g., "Walajapet Highway")
+- `address` (Single line text) - Street address
+- `area` (Single line text) - Area/locality description
+- `phone` (Phone number) - Contact phone number
+- `email` (Email) - Optional location email
+- `services` (Multiple select) - Available services (Dine-in, Takeout, Delivery, Parking, etc.)
+- `description` (Long text) - Optional location description
+- `coordinates` (Long text) - JSON string with latitude/longitude (e.g., '{"latitude": 12.1234, "longitude": 79.5678}')
+- `image` (Attachment) - Optional location image
+- `displayOrder` (Number) - Display order
+- `isActive` (Checkbox) - Whether location is active
+- `operatingHours` (Long text) - JSON string with hours (see format below)
+- `createdAt` (Date) - Creation date
+- `updatedAt` (Date) - Last update date
+
+**Operating Hours Format:**
+
+```json
+{
+  "open": "07:00",
+  "close": "22:00",
+  "breaks": [
+    {
+      "start": "07:00",
+      "end": "11:00",
+      "label": "Breakfast"
+    },
+    {
+      "start": "11:00",
+      "end": "16:00",
+      "label": "Lunch"
+    },
+    {
+      "start": "18:00",
+      "end": "22:00",
+      "label": "Dinner"
+    }
+  ]
+}
+```
+
+### 5. Testimonials Table ⭐ NEW
+
+**Fields:**
+
+- `customerName` (Single line text) - Customer's name
+- `customerTitle` (Single line text) - Optional title (e.g., "Regular Customer", "Family Diner")
+- `rating` (Number) - Rating out of 5 stars (1-5)
+- `comment` (Long text) - Customer testimonial text
+- `location` (Single line text) - Which location they visited (optional)
+- `date` (Date) - Date of review/visit
+- `isActive` (Checkbox) - Whether testimonial is active
+- `isFeatured` (Checkbox) - Whether to show on homepage (only featured ones appear)
+- `avatar` (Attachment) - Optional customer photo
+- `displayOrder` (Number) - Display order
+- `createdAt` (Date) - Creation date
+- `updatedAt` (Date) - Last update date
+
+### 6. ContactInfo Table ⭐ NEW
+
+**Fields:**
+
+- `type` (Single select) - Type of contact info (phone, email, address, hours, social)
+- `label` (Single line text) - Display label (e.g., "Walajapet", "General Inquiries")
+- `value` (Single line text) - The actual contact value
+- `icon` (Single line text) - Optional icon name
+- `displayOrder` (Number) - Display order
+- `isActive` (Checkbox) - Whether info is active
+- `createdAt` (Date) - Creation date
+- `updatedAt` (Date) - Last update date
+
+## Sample Data
+
+### Locations Sample:
+
+1. **Walajapet Highway**
+
+   - Address: "1/220 Chennai Bangalore Hwy"
+   - Area: "Walaja, Nandiyalam, Ratnagiri Kilminnal"
+   - Phone: "+91 94432 26795"
+   - Services: Dine-in, Parking, Takeout
+
+2. **Ratnagiri Temple**
+   - Address: "Bangalore-Chennai Hwy"
+   - Area: "Near Ratnagiri Murugan Temple, Kilminnal"
+   - Phone: "+91 74012 34500"
+   - Services: Dine-in, Self-service
+
+### Testimonials Sample:
+
+1. **Priya Sharma** - Rating: 5
+   - Comment: "Outstanding vegetarian food with authentic flavors. The paneer butter masala is absolutely divine. Highly recommend the Walajapet location for highway travelers."
+   - Location: "Walajapet Highway"
+   - isFeatured: ✓
+
+### ContactInfo Sample:
+
+1. **Phone** - Label: "Walajapet", Value: "+91 94432 26795"
+2. **Email** - Label: "General Inquiries", Value: "info@alankarhotels.com"
+3. **Hours** - Label: "Daily Operating Hours", Value: "7:00 AM - 10:00 PM"
+
+## View Configuration
+
+Create a "Grid view" in each table with the following settings:
+
+### All Tables:
+
+- **Filter:** `{isActive} = TRUE()` (only show active records)
+- **Sort:** `{displayOrder}` ascending
+
+## API Access
+
+The website automatically fetches data from these tables using the Airtable API. If Airtable is not configured or fails, the website will fall back to static data defined in the code.
+
+## Testing
+
+1. Add sample data to your tables
+2. Ensure `isActive` is checked for records you want to appear
+3. Set appropriate `displayOrder` values
+4. Test the website - you should see your Airtable data appear
 
 ## Troubleshooting
-### Menu Not Loading from Airtable:
-1. Check your API key and Base ID are correct
-2. Verify table names are exactly "Menu_Categories" and "Menu_Items"
-3. Check field names match exactly (case-sensitive)
-4. Ensure you have the correct permissions on your API key
 
-### Items Not Appearing:
-1. Check `Is_Available` is checked for menu items
-2. Check `Is_Active` is checked for categories
-3. Verify items are properly linked to categories
-4. Check browser console for any error messages
+- Check browser console for error messages
+- Verify your API key and base ID are correct
+- Ensure table names match exactly (case-sensitive)
+- Check that required fields are not empty
+- Verify checkbox fields are properly set
 
-### Performance Issues:
-- The system caches data for 5 minutes
-- If you need immediate updates, restart the development server
-- For production, consider implementing a webhook system for instant updates
+## Features
 
-## API Rate Limits
-Airtable has rate limits:
-- 5 requests per second per base
-- 1,000 requests per month for free accounts
-
-The caching system helps stay within these limits by reducing API calls.
-
-## Support
-If you encounter issues:
-1. Check the browser console for error messages
-2. Verify your Airtable setup matches this guide exactly
-3. Test with sample data first before adding your full menu 
+✅ **Menu Items & Categories** - Dynamic menu with categories and items
+✅ **Restaurant Ambiance** - Photo gallery organized by type  
+✅ **Locations** - Dynamic location cards with services and hours
+✅ **Testimonials** - Customer reviews with ratings and photos
+✅ **Contact Information** - Phone numbers, emails, and operating hours
+✅ **Caching** - 5-minute cache to improve performance
+✅ **Fallback Data** - Website works even without Airtable
+✅ **Loading States** - Smooth loading experience for users

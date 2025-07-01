@@ -3,8 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Navigation from "@/components/navigation";
 import Footer from "@/components/footer";
-import { getMenuData, getAmbianceData } from "@/lib/menuService";
-import { MenuCategory, AmbianceType } from "@/../../shared/schema";
+import { getMenuData, getAmbianceData, getLocationsData, getTestimonialsData, getContactInfoData, getFeaturedTestimonials } from "@/lib/menuService";
+import { MenuCategory, AmbianceType, Location, Testimonial, ContactInfo } from "@/../../shared/schema";
 import {
   Heart,
   MapPin,
@@ -27,6 +27,12 @@ export default function Home() {
   const [isLoadingMenu, setIsLoadingMenu] = useState(true);
   const [ambianceData, setAmbianceData] = useState<AmbianceType[]>([]);
   const [isLoadingAmbiance, setIsLoadingAmbiance] = useState(true);
+  const [locationsData, setLocationsData] = useState<Location[]>([]);
+  const [isLoadingLocations, setIsLoadingLocations] = useState(true);
+  const [testimonialsData, setTestimonialsData] = useState<Testimonial[]>([]);
+  const [isLoadingTestimonials, setIsLoadingTestimonials] = useState(true);
+  const [contactInfoData, setContactInfoData] = useState<ContactInfo[]>([]);
+  const [isLoadingContactInfo, setIsLoadingContactInfo] = useState(true);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -77,6 +83,57 @@ export default function Home() {
     };
 
     loadAmbianceData();
+  }, []);
+
+  // Load locations data from Airtable
+  useEffect(() => {
+    const loadLocationsData = async () => {
+      try {
+        setIsLoadingLocations(true);
+        const data = await getLocationsData();
+        setLocationsData(data);
+      } catch (error) {
+        console.error("Error loading locations data:", error);
+      } finally {
+        setIsLoadingLocations(false);
+      }
+    };
+
+    loadLocationsData();
+  }, []);
+
+  // Load testimonials data from Airtable
+  useEffect(() => {
+    const loadTestimonialsData = async () => {
+      try {
+        setIsLoadingTestimonials(true);
+        const data = await getFeaturedTestimonials(); // Only get featured testimonials
+        setTestimonialsData(data);
+      } catch (error) {
+        console.error("Error loading testimonials data:", error);
+      } finally {
+        setIsLoadingTestimonials(false);
+      }
+    };
+
+    loadTestimonialsData();
+  }, []);
+
+  // Load contact info data from Airtable
+  useEffect(() => {
+    const loadContactInfoData = async () => {
+      try {
+        setIsLoadingContactInfo(true);
+        const data = await getContactInfoData();
+        setContactInfoData(data);
+      } catch (error) {
+        console.error("Error loading contact info data:", error);
+      } finally {
+        setIsLoadingContactInfo(false);
+      }
+    };
+
+    loadContactInfoData();
   }, []);
 
   return (
@@ -775,100 +832,63 @@ export default function Home() {
 
           {/* Locations Grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-            <Card className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl border-0">
-              <CardContent className="p-0">
-                <h4 className="font-playfair text-xl font-bold text-accent-dark mb-3">
-                  Walajapet Highway
-                </h4>
-                <div className="space-y-2 text-sm text-gray-700">
-                  <p className="font-medium">1/220 Chennai Bangalore Hwy</p>
-                  <p>Walaja, Nandiyalam, Ratnagiri Kilminnal</p>
-                  <p className="font-semibold text-accent-medium">
-                    +91 94432 26795
-                  </p>
-                  <div className="pt-2 text-xs text-gray-600">
-                    <span className="bg-accent-light/20 px-2 py-1 rounded mr-1">
-                      Dine-in
-                    </span>
-                    <span className="bg-accent-light/20 px-2 py-1 rounded mr-1">
-                      Parking
-                    </span>
-                    <span className="bg-accent-light/20 px-2 py-1 rounded">
-                      Takeout
-                    </span>
-                  </div>
+            {isLoadingLocations ? (
+              <div className="col-span-full flex items-center justify-center py-12">
+                <div className="text-center">
+                  <Loader2 className="w-8 h-8 animate-spin text-brand-primary mx-auto mb-4" />
+                  <p className="text-body text-brand-text">Loading locations...</p>
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl border-0">
-              <CardContent className="p-0">
-                <h4 className="font-playfair text-xl font-bold text-accent-dark mb-3">
-                  Ratnagiri Temple
-                </h4>
-                <div className="space-y-2 text-sm text-gray-700">
-                  <p className="font-medium">Bangalore-Chennai Hwy</p>
-                  <p>Near Ratnagiri Murugan Temple, Kilminnal</p>
-                  <p className="font-semibold text-accent-medium">
-                    +91 74012 34500
-                  </p>
-                  <div className="pt-2 text-xs text-gray-600">
-                    <span className="bg-accent-light/20 px-2 py-1 rounded mr-1">
-                      Dine-in
-                    </span>
-                    <span className="bg-accent-light/20 px-2 py-1 rounded">
-                      Self-service
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl border-0">
-              <CardContent className="p-0">
-                <h4 className="font-playfair text-xl font-bold text-accent-dark mb-3">
-                  Ratnagiri Highway
-                </h4>
-                <div className="space-y-2 text-sm text-gray-700">
-                  <p className="font-medium">Ratnagiri Highway</p>
-                  <p>Ratnagiri Kilminnal</p>
-                  <p className="font-semibold text-accent-medium">
-                    +91 99444 46344
-                  </p>
-                  <div className="pt-2 text-xs text-gray-600">
-                    <span className="bg-accent-light/20 px-2 py-1 rounded mr-1">
-                      Dine-in
-                    </span>
-                    <span className="bg-accent-light/20 px-2 py-1 rounded">
-                      Highway location
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl border-0">
-              <CardContent className="p-0">
-                <h4 className="font-playfair text-xl font-bold text-accent-dark mb-3">
-                  Thottapalayam Vellore
-                </h4>
-                <div className="space-y-2 text-sm text-gray-700">
-                  <p className="font-medium">New Bus Stand, Ward 59</p>
-                  <p>Thottapalayam, Vellore</p>
-                  <p className="font-semibold text-accent-medium">
-                    +91 416 420 2013
-                  </p>
-                  <div className="pt-2 text-xs text-gray-600">
-                    <span className="bg-accent-light/20 px-2 py-1 rounded mr-1">
-                      Dine-in
-                    </span>
-                    <span className="bg-accent-light/20 px-2 py-1 rounded">
-                      Delivery
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              </div>
+            ) : (
+              locationsData.map((location, index) => (
+                <Card key={location.id} className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl border-0 hover:shadow-2xl transition-shadow duration-300">
+                  <CardContent className="p-0">
+                    <h4 className="font-playfair text-xl font-bold text-accent-dark mb-3">
+                      {location.name}
+                    </h4>
+                    <div className="space-y-2 text-sm text-gray-700">
+                      <p className="font-medium">{location.address}</p>
+                      <p>{location.area}</p>
+                      <p className="font-semibold text-accent-medium">
+                        {location.phone}
+                      </p>
+                      {location.email && (
+                        <p className="text-accent-medium text-xs">
+                          {location.email}
+                        </p>
+                      )}
+                      {location.description && (
+                        <p className="text-xs text-gray-600 italic mt-2">
+                          {location.description}
+                        </p>
+                      )}
+                      <div className="pt-2 text-xs text-gray-600">
+                        {location.services.map((service, serviceIndex) => (
+                          <span
+                            key={serviceIndex}
+                            className="bg-accent-light/20 px-2 py-1 rounded mr-1 mb-1 inline-block"
+                          >
+                            {service}
+                          </span>
+                        ))}
+                      </div>
+                      {location.operatingHours && (
+                        <div className="pt-2 text-xs text-gray-600">
+                          <p className="font-medium">
+                            Hours: {location.operatingHours.open} - {location.operatingHours.close}
+                          </p>
+                          {location.operatingHours.breaks && location.operatingHours.breaks.map((breakTime, breakIndex) => (
+                            <p key={breakIndex} className="text-xs">
+                              {breakTime.label}: {breakTime.start} - {breakTime.end}
+                            </p>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </div>
 
           <div className="max-w-4xl mx-auto">
@@ -879,50 +899,83 @@ export default function Home() {
                   Contact Information
                 </h3>
 
-                <div className="grid md:grid-cols-3 gap-8">
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-gradient-to-br from-accent-medium to-accent-dark rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                      <Phone className="w-8 h-8 text-brown drop-shadow-lg" />
-                    </div>
-                    <h4 className="font-semibold text-lg text-accent-dark mb-3">
-                      Phone Numbers
-                    </h4>
-                    <div className="text-gray-700 space-y-1 text-sm">
-                      <p>Walajapet: +91 94432 26795</p>
-                      <p>Ratnagiri Temple: +91 74012 34500</p>
-                      <p>Ratnagiri Highway: +91 99444 46344</p>
-                      <p>Thottapalayam: +91 416 420 2013</p>
+                {isLoadingContactInfo ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="text-center">
+                      <Loader2 className="w-8 h-8 animate-spin text-brand-primary mx-auto mb-4" />
+                      <p className="text-body text-brand-text">Loading contact information...</p>
                     </div>
                   </div>
+                ) : (
+                  <div className="grid md:grid-cols-3 gap-8">
+                    {/* Phone Numbers */}
+                    <div className="text-center">
+                      <div className="w-16 h-16 bg-gradient-to-br from-accent-medium to-accent-dark rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                        <Phone className="w-8 h-8 text-white drop-shadow-lg" />
+                      </div>
+                      <h4 className="font-semibold text-lg text-accent-dark mb-3">
+                        Phone Numbers
+                      </h4>
+                      <div className="text-gray-700 space-y-1 text-sm">
+                        {contactInfoData
+                          .filter(info => info.type === 'Phone')
+                          .map(phone => (
+                            <p key={phone.id}>
+                              {phone.label}: {phone.value}
+                            </p>
+                          ))}
+                      </div>
+                    </div>
 
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-gradient-to-br from-accent-medium to-accent-dark rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                      <Mail className="w-8 h-8 text-brown drop-shadow-lg" />
+                    {/* Email Addresses */}
+                    <div className="text-center">
+                      <div className="w-16 h-16 bg-gradient-to-br from-accent-medium to-accent-dark rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                        <Mail className="w-8 h-8 text-white drop-shadow-lg" />
+                      </div>
+                      <h4 className="font-semibold text-lg text-accent-dark mb-3">
+                        Email
+                      </h4>
+                      <div className="text-gray-700 space-y-1">
+                        {contactInfoData
+                          .filter(info => info.type === 'Email')
+                          .map(email => (
+                            <p key={email.id}>
+                              {email.value}
+                            </p>
+                          ))}
+                      </div>
                     </div>
-                    <h4 className="font-semibold text-lg text-accent-dark mb-3">
-                      Email
-                    </h4>
-                    <div className="text-gray-700 space-y-1">
-                      <p>info@alankarhotels.com</p>
-                      <p>reservations@alankarhotels.com</p>
-                    </div>
-                  </div>
 
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-gradient-to-br from-accent-medium to-accent-dark rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                      <Clock className="w-8 h-8 text-brown drop-shadow-lg" />
-                    </div>
-                    <h4 className="font-semibold text-lg text-accent-dark mb-3">
-                      Operating Hours
-                    </h4>
-                    <div className="text-gray-700 space-y-1 text-sm">
-                      <p className="font-medium">Daily: 7:00 AM - 10:00 PM</p>
-                      <p>Breakfast: 7:00 AM - 11:00 AM</p>
-                      <p>Lunch: 11:00 AM - 4:00 PM</p>
-                      <p>Dinner: 6:00 PM - 10:00 PM</p>
+                    {/* Operating Hours */}
+                    <div className="text-center">
+                      <div className="w-16 h-16 bg-gradient-to-br from-accent-medium to-accent-dark rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                        <Clock className="w-8 h-8 text-white drop-shadow-lg" />
+                      </div>
+                      <h4 className="font-semibold text-lg text-accent-dark mb-3">
+                        Operating Hours
+                      </h4>
+                      <div className="text-gray-700 space-y-1 text-sm">
+                        {contactInfoData
+                          .filter(info => info.type === 'Hours')
+                          .map(hours => (
+                            <p key={hours.id} className="font-medium">
+                              {hours.label}: {hours.value}
+                            </p>
+                          ))}
+                        {/* Show location specific hours from locations data */}
+                        {locationsData.length > 0 && locationsData[0].operatingHours?.breaks && (
+                          <>
+                            {locationsData[0].operatingHours.breaks.map((breakTime, index) => (
+                              <p key={index} className="text-xs">
+                                {breakTime.label}: {breakTime.start} - {breakTime.end}
+                              </p>
+                            ))}
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -1034,71 +1087,68 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            <Card className="bg-white rounded-2xl p-8 shadow-lg border-0">
-              <CardContent className="p-0">
-                <div className="flex mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className="w-5 h-5 fill-accent-medium text-accent-medium"
-                    />
-                  ))}
+          {isLoadingTestimonials ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <Loader2 className="w-8 h-8 animate-spin text-brand-primary mx-auto mb-4" />
+                <p className="text-body text-brand-text">Loading testimonials...</p>
+              </div>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-3 gap-8">
+              {testimonialsData.length > 0 ? (
+                testimonialsData.slice(0, 3).map((testimonial, index) => (
+                  <Card key={testimonial.id} className="bg-white rounded-2xl p-8 shadow-lg border-0 hover:shadow-xl transition-shadow duration-300">
+                    <CardContent className="p-0">
+                      <div className="flex mb-4">
+                        {[...Array(testimonial.rating)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className="w-5 h-5 fill-accent-medium text-accent-medium"
+                          />
+                        ))}
+                        {[...Array(5 - testimonial.rating)].map((_, i) => (
+                          <Star
+                            key={`empty-${i}`}
+                            className="w-5 h-5 text-gray-300"
+                          />
+                        ))}
+                      </div>
+                      <p className="text-gray-700 mb-6 italic">
+                        "{testimonial.comment}"
+                      </p>
+                      <div className="flex items-center">
+                        {testimonial.avatar && (
+                          <img
+                            src={testimonial.avatar}
+                            alt={testimonial.customerName}
+                            className="w-12 h-12 rounded-full mr-4 object-cover"
+                          />
+                        )}
+                        <div>
+                          <div className="font-semibold text-accent-dark">
+                            {testimonial.customerName}
+                          </div>
+                          <div className="text-sm text-gray-600">
+                            {testimonial.customerTitle}
+                          </div>
+                          {testimonial.location && (
+                            <div className="text-xs text-accent-medium">
+                              {testimonial.location}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <div className="col-span-full text-center py-12">
+                  <p className="text-body text-gray-600">No testimonials available at the moment.</p>
                 </div>
-                <p className="text-gray-700 mb-6 italic">
-                  "Outstanding vegetarian food with authentic flavors. The
-                  paneer butter masala is absolutely divine. Highly recommend
-                  the Walajapet location for highway travelers."
-                </p>
-                <div className="font-semibold text-accent-dark">
-                  Priya Sharma
-                </div>
-                <div className="text-sm text-gray-600">Regular Customer</div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white rounded-2xl p-8 shadow-lg border-0">
-              <CardContent className="p-0">
-                <div className="flex mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className="w-5 h-5 fill-accent-medium text-accent-medium"
-                    />
-                  ))}
-                </div>
-                <p className="text-gray-700 mb-6 italic">
-                  "Clean, hygienic environment with excellent service. The
-                  variety in their menu is impressive and everything tastes
-                  homemade. Perfect for family dining."
-                </p>
-                <div className="font-semibold text-accent-dark">
-                  Rajesh Kumar
-                </div>
-                <div className="text-sm text-gray-600">Family Diner</div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white rounded-2xl p-8 shadow-lg border-0">
-              <CardContent className="p-0">
-                <div className="flex mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className="w-5 h-5 fill-accent-medium text-accent-medium"
-                    />
-                  ))}
-                </div>
-                <p className="text-gray-700 mb-6 italic">
-                  "Been visiting for years and the quality never disappoints.
-                  The temple location is especially convenient and the
-                  self-service option is great for quick meals."
-                </p>
-                <div className="font-semibold text-accent-dark">Meera Iyer</div>
-                <div className="text-sm text-gray-600">Loyal Customer</div>
-              </CardContent>
-            </Card>
-          </div>
+              )}
+            </div>
+          )}
         </div>
       </section>
 
