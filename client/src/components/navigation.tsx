@@ -61,7 +61,7 @@ export default function Navigation({ mobileMenuOpen, setMobileMenuOpen }: Naviga
     { id: "contact", label: "Contact" },
     { id: "faq", label: "FAQ" },
     { id: "testimonials", label: "Testimonials" },
-    { id: "blog", label: "Blog" },
+    // { id: "blog", label: "Blog" },
   ];
 
   return (

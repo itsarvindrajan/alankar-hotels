@@ -1,5 +1,5 @@
 import Airtable from 'airtable';
-import { MenuItem, MenuCategory } from '@/../../shared/schema';
+import { MenuItem, MenuCategory, AmbianceImage, AmbianceType } from '@/../../shared/schema';
 import { Utensils, Coffee, Heart, Sparkles, ChefHat, Soup } from 'lucide-react';
 
 // Icon mapping for categories
@@ -23,6 +23,7 @@ const base = AIRTABLE_API_KEY && AIRTABLE_BASE_ID
 
 // Cache for menu data
 let menuCache: { categories: MenuCategory[]; items: MenuItem[]; lastFetch: number } | null = null;
+let ambianceCache: { images: AmbianceImage[]; groupedByType: AmbianceType[]; lastFetch: number } | null = null;
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 // Fallback menu data (your current static data)
@@ -41,6 +42,7 @@ const fallbackMenuData: MenuCategory[] = [
         price: 180,
         category: 'appetizers',
         isAvailable: true,
+        isSignature: true,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       },
@@ -90,6 +92,7 @@ const fallbackMenuData: MenuCategory[] = [
         price: 220,
         category: 'main-courses',
         isAvailable: true,
+        isSignature: true,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       },
@@ -110,6 +113,7 @@ const fallbackMenuData: MenuCategory[] = [
         price: 280,
         category: 'main-courses',
         isAvailable: true,
+        isSignature: true,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       },
@@ -218,6 +222,7 @@ const fallbackMenuData: MenuCategory[] = [
         price: 50,
         category: 'beverages',
         isAvailable: true,
+        isLatest: true,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       },
@@ -255,7 +260,7 @@ async function fetchMenuItemsFromAirtable(): Promise<MenuItem[]> {
   
   try {
     const records = await base('Menu_Items').select({
-      filterByFormula: '{Is_Available} = TRUE()',
+      filterByFormula: '{isAvailable} = TRUE()',
       sort: [{ field: 'Name', direction: 'asc' }]
     }).all();
 
@@ -281,11 +286,13 @@ async function fetchMenuItemsFromAirtable(): Promise<MenuItem[]> {
         description: record.get('Description') as string,
         price: record.get('Price') as number,
         category: categoryId,
-        isAvailable: record.get('Is_Available') as boolean,
+        isAvailable: record.get('isAvailable') as boolean,
         image: record.get('Image') as string || undefined,
         tags: record.get('Tags') as string[] || [],
-        createdAt: record.get('Created_At') as string || new Date().toISOString(),
-        updatedAt: record.get('Updated_At') as string || new Date().toISOString(),
+        isSignature: record.get('isSignature') as boolean || false,
+        isLatest: record.get('isLatest') as boolean || false,
+        createdAt: record.get('createdAt') as string || new Date().toISOString(),
+        updatedAt: record.get('updatedAt') as string || new Date().toISOString(),
       };
     });
 
@@ -364,4 +371,160 @@ export async function getMenuItemsByCategory(categoryId: string): Promise<MenuIt
   const menuData = await getMenuData();
   const category = menuData.find(cat => cat.id === categoryId);
   return category?.items || [];
-} 
+}
+
+// Function to get signature dishes
+export async function getSignatureDishes(): Promise<MenuItem[]> {
+  const menuData = await getMenuData();
+  return menuData
+    .flatMap(category => category.items || [])
+    .filter(item => item.isSignature);
+}
+
+// Function to get latest dishes
+export async function getLatestDishes(): Promise<MenuItem[]> {
+  const menuData = await getMenuData();
+  return menuData
+    .flatMap(category => category.items || [])
+    .filter(item => item.isLatest);
+}
+
+// Fetch ambiance images from Airtable
+async function fetchAmbianceImagesFromAirtable(): Promise<AmbianceImage[]> {
+  if (!base) return [];
+  
+  try {
+    const records = await base('Restaurant_Ambiance').select({
+      filterByFormula: '{Is_Active} = TRUE()',
+      sort: [{ field: 'Display_Order', direction: 'asc' }]
+    }).all();
+
+    return records.map(record => ({
+      id: record.id,
+      title: record.get('Title') as string,
+      description: record.get('Description') as string || undefined,
+      image: record.get('Image') as string,
+      type: record.get('Type') as string,
+      displayOrder: record.get('Display_Order') as number,
+      isActive: record.get('Is_Active') as boolean,
+      createdAt: record.get('createdAt') as string || new Date().toISOString(),
+      updatedAt: record.get('updatedAt') as string || new Date().toISOString(),
+    }));
+  } catch (error) {
+    console.error('Error fetching ambiance images from Airtable:', error);
+    return [];
+  }
+}
+
+// Fallback ambiance data
+const fallbackAmbianceData: AmbianceImage[] = [
+  {
+    id: 'entrance-1',
+    title: 'Welcoming Entrance',
+    description: 'Warm hospitality awaits',
+    image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300',
+    type: 'entrance',
+    displayOrder: 1,
+    isActive: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'dining-1',
+    title: 'Dining Area',
+    description: 'Comfortable family seating',
+    image: 'https://images.unsplash.com/photo-1530062845289-9109b2c9c868?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300',
+    type: 'dining',
+    displayOrder: 1,
+    isActive: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'kitchen-1',
+    title: 'Modern Kitchen',
+    description: 'Hygienic food preparation',
+    image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300',
+    type: 'kitchen',
+    displayOrder: 1,
+    isActive: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'private-1',
+    title: 'Private Dining',
+    description: 'Special occasions',
+    image: 'https://images.unsplash.com/photo-1551218808-94e220e084d2?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300',
+    type: 'private',
+    displayOrder: 1,
+    isActive: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+];
+
+// Function to group ambiance images by type
+function groupAmbianceImagesByType(images: AmbianceImage[]): AmbianceType[] {
+  const grouped = images.reduce((acc, image) => {
+    if (!acc[image.type]) {
+      acc[image.type] = [];
+    }
+    acc[image.type].push(image);
+    return acc;
+  }, {} as Record<string, AmbianceImage[]>);
+
+  return Object.entries(grouped).map(([type, images]) => ({
+    type,
+    images: images.sort((a, b) => a.displayOrder - b.displayOrder),
+  }));
+}
+
+// Main function to get ambiance data
+export async function getAmbianceData(): Promise<AmbianceType[]> {
+  // Check cache first
+  if (ambianceCache && Date.now() - ambianceCache.lastFetch < CACHE_DURATION) {
+    return ambianceCache.groupedByType;
+  }
+
+  try {
+    // Try to fetch from Airtable
+    if (base) {
+      const images = await fetchAmbianceImagesFromAirtable();
+      
+      if (images.length > 0) {
+        const groupedByType = groupAmbianceImagesByType(images);
+        
+        // Update cache
+        ambianceCache = {
+          images,
+          groupedByType,
+          lastFetch: Date.now()
+        };
+
+        return groupedByType;
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching ambiance data:', error);
+  }
+
+  // Fallback to static data
+  return groupAmbianceImagesByType(fallbackAmbianceData);
+}
+
+// Function to get all ambiance images
+export async function getAllAmbianceImages(): Promise<AmbianceImage[]> {
+  // Check cache first
+  if (ambianceCache && Date.now() - ambianceCache.lastFetch < CACHE_DURATION) {
+    return ambianceCache.images;
+  }
+
+  const groupedData = await getAmbianceData();
+  return groupedData.flatMap(group => group.images);
+}
+
+// Function to refresh ambiance cache
+export function refreshAmbianceCache(): void {
+  ambianceCache = null;
+}

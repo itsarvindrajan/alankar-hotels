@@ -59,12 +59,22 @@ app.use((req, res, next) => {
   // ALWAYS serve the app on port 5000
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
-  const port = 3000;
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port}`);
-  });
+  const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+  
+  try {
+    server.listen(port, '127.0.0.1', () => {
+      log(`serving on port ${port}`);
+    }).on('error', (err: NodeJS.ErrnoException) => {
+      console.error('Server start error:', err);
+      if (err.code === 'EADDRINUSE') {
+        console.error(`Port ${port} is already in use. Is another server running?`);
+      } else if (err.code === 'ENOTSUP') {
+        console.error('Network socket not supported. Check your network configuration.');
+      }
+      process.exit(1);
+    });
+  } catch (err: unknown) {
+    console.error('Failed to start server:', err);
+    process.exit(1);
+  }
 })();

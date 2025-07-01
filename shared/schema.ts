@@ -47,6 +47,8 @@ export interface MenuItem {
   isAvailable: boolean;
   image?: string;
   tags?: string[];
+  isSignature?: boolean;
+  isLatest?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -61,7 +63,37 @@ export interface MenuCategory {
   items?: MenuItem[];
 }
 
+// Restaurant Ambiance Types for Airtable Integration
+export interface AmbianceImage {
+  id: string;
+  title: string;
+  description?: string;
+  image: string;
+  type: string;
+  displayOrder: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AmbianceType {
+  type: string;
+  images: AmbianceImage[];
+}
+
 // Zod schemas for validation
+export const AmbianceImageSchema = z.object({
+  id: z.string(),
+  title: z.string().min(1, "Title is required"),
+  description: z.string().optional(),
+  image: z.string().url("Valid image URL is required"),
+  type: z.string().min(1, "Type is required"),
+  displayOrder: z.number().int().min(0),
+  isActive: z.boolean().default(true),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
 export const MenuItemSchema = z.object({
   id: z.string(),
   name: z.string().min(1, "Name is required"),
@@ -71,6 +103,8 @@ export const MenuItemSchema = z.object({
   isAvailable: z.boolean().default(true),
   image: z.string().url().optional(),
   tags: z.array(z.string()).optional(),
+  isSignature: z.boolean().optional(),
+  isLatest: z.boolean().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 });
