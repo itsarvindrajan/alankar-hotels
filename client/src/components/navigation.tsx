@@ -81,7 +81,7 @@ export default function Navigation({ mobileMenuOpen, setMobileMenuOpen }: Naviga
               <h1 className={`font-baloo-thambi-2 text-2xl lg:text-3xl font-bold leading-tight transition-colors duration-500 ${
                 isScrolled ? "text-brand-text" : "text-white drop-shadow-lg"
               }`}>
-                அலங்கார
+                அலங்கார்
               </h1>
               <p className={`font-inter text-xs font-medium tracking-wide transition-colors duration-500 ${
                 isScrolled ? "text-brand-accent" : "text-brand-accent-light drop-shadow-md"
