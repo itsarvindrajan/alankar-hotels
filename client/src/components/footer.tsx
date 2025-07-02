@@ -39,7 +39,7 @@ export default function Footer() {
                   <Utensils className="w-8 h-8 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-baloo-thambi-2 text-4xl font-bold text-white mb-1">அலங்கார</h3>
+                  <h3 className="font-baloo-thambi-2 text-4xl font-bold text-white mb-1">அலங்கார்</h3>
                   <p className="font-inter text-brand-accent-light font-medium text-sm tracking-wider">PURE VEGETARIAN EXCELLENCE</p>
                 </div>
               </div>
