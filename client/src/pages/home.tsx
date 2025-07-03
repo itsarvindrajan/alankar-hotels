@@ -666,7 +666,7 @@ export default function Home() {
               </h3>
               <div className="w-20 h-1 bg-gradient-to-r from-gold to-accent-medium mx-auto"></div>
             </div>
-            <div className={`grid md:grid-cols-${signatureDishes.length/2} lg:grid-cold-${signatureDishes.length} gap-8`}>
+            <div className={`flex flex-col justify-center items-center gap-8`}>
               {(() => {
                 // Get signature dishes from menu data
                 const signatureDishes = menuItems
