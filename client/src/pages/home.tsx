@@ -666,7 +666,7 @@ export default function Home() {
               </h3>
               <div className="w-20 h-1 bg-gradient-to-r from-gold to-accent-medium mx-auto"></div>
             </div>
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className={`grid md:grid-cols-${signatureDishes.length/2} lg:grid-cold-${signatureDishes.length} gap-8`}>
               {(() => {
                 // Get signature dishes from menu data
                 const signatureDishes = menuItems
@@ -831,7 +831,7 @@ export default function Home() {
           </div>
 
           {/* Locations Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+          <div className={`grid md:grid-cols-${locationsData.length/2} lg:grid-cols-${locationsData.length} gap-8 mb-16`}>
             {isLoadingLocations ? (
               <div className="col-span-full flex items-center justify-center py-12">
                 <div className="text-center">
@@ -1095,7 +1095,7 @@ export default function Home() {
               </div>
             </div>
           ) : (
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className={`grid md:grid-cols-${testimonialsData.length/2} lg:grid-cols-${testimonialsData.length} gap-8`}>
               {testimonialsData.length > 0 ? (
                 testimonialsData.slice(0, 3).map((testimonial, index) => (
                   <Card key={testimonial.id} className="bg-white rounded-2xl p-8 shadow-lg border-0 hover:shadow-xl transition-shadow duration-300">
